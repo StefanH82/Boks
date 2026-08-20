@@ -110,6 +110,7 @@ const ADMIN_PIN = "boks2026SH";
 const GREEN = "#007749";
 const GOLD = "#FFC425";
 const DARK = "#1a1f1e";
+const WHITE = #FFFFFF;
 const CARD = "rgba(255,255,255,0.04)";
 
 export default function App() {
@@ -203,7 +204,7 @@ export default function App() {
   const totalPreds = Object.values(preds).filter(p=>p&&p.home!==""&&p.away!=="").length;
 
   return (
-    <div style={{minHeight:"100vh",background:GREEN,fontFamily:"'Inter',system-ui,sans-serif",color:"#e8f0eb",position:"relative",overflowX:"hidden"}}>
+    <div style={{minHeight:"100vh",background:WHITE,fontFamily:"'Inter',system-ui,sans-serif",color:"#e8f0eb",position:"relative",overflowX:"hidden"}}>
 
       {/* Green top bar */}
       <div style={{position:"fixed",top:0,left:0,right:0,height:3,zIndex:100,background:`linear-gradient(90deg,transparent,${GREEN} 30%,${GOLD} 50%,${GREEN} 70%,transparent)`}}/>
@@ -221,7 +222,7 @@ export default function App() {
       )}
 
       {/* Header */}
-      <header style={{position:"sticky",top:0,zIndex:50,background:"rgba(26,31,30,0.97)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${GREEN}40`,padding:"0 20px"}}>
+      <header style={{position:"sticky",top:0,zIndex:50,background:"rgba(0,119,73,0.97)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${GREEN}40`,padding:"0 20px"}}>
         <div style={{maxWidth:800,margin:"0 auto"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 0 10px"}}>
             <div style={{display:"flex",alignItems:"center",gap:12}}>
