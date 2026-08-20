@@ -238,9 +238,9 @@ export default function App() {
                   </div>
                   <button onClick={handleLogout} style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:20,padding:"5px 10px",color:"rgba(255,255,255,0.3)",fontSize:10,cursor:"pointer",fontFamily:"inherit"}}>Log out</button>
                 </>
-              )}
-            </div><div style={{width:60,height:60,borderRadius:10,background:`linear-gradient(135deg,${WHITE},#ffffff)`,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 0 20px ${GREEN}60`}}>
+              )}<div style={{width:60,height:60,borderRadius:10,background:`linear-gradient(135deg,${WHITE},#ffffff)`,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 0 20px ${GREEN}60`}}>
     <img src="/All Blacks.png" alt="All Blacks" style={{width:"80%",height:"80%",objectFit:"cover"}}/>
+            </div>
   </div>
           </div>
           {/* Nav */}
