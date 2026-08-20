@@ -223,7 +223,7 @@ export default function App() {
 
       {/* Header */}
       <header style={{position:"sticky",top:0,zIndex:50,background:"rgba(0,119,73,0.97)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${GREEN}40`,padding:"0 20px"}}>
-        <div style={{maxWidth:960,margin:"0 auto"}}>
+        <div style={{maxWidth:1200,margin:"0 auto"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 0 10px"}}>
             <div style={{display:"flex",alignItems:"center",gap:12}}>
               <div style={{width:42,height:42,borderRadius:10,background:`linear-gradient(135deg,${WHITE},#ffffff)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,boxShadow:`0 0 20px ${GREEN}60`}}><img src="/South_Africa_national_rugby_union_team.svg" alt="Springboks" style={{width:"80%",height:"80%",objectFit:"cover"}}/></div>
@@ -564,22 +564,7 @@ export default function App() {
               </>
             )}
           </div>
-        )}
-      </main>
-
-      {/* Toast */}
-      {toast&&(
-        <div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:toast.type==="error"?"rgba(120,20,20,0.97)":"rgba(10,40,20,0.97)",border:`1px solid ${toast.type==="error"?"#f87171":"#4ade80"}`,borderRadius:10,padding:"11px 22px",color:"#fff",fontSize:12,fontWeight:600,zIndex:200,whiteSpace:"nowrap",boxShadow:"0 8px 32px rgba(0,0,0,0.6)"}}>
-          {toast.type==="error"?"✗ ":"✓ "}{toast.msg}
-        </div>
-      )}
-
-      <style>{`
-        input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
-        input[type=number]{-moz-appearance:textfield}
-        *{box-sizing:border-box}
-      `}</style>
-      {/* Sticky Footer */}
+        )}     {/* Sticky Footer */}
 <div style={{
   position:"fixed",bottom:0,left:0,right:0,zIndex:50,
   background:"rgba(0,0,0,0.95)",
@@ -594,6 +579,21 @@ export default function App() {
   <span style={{fontSize:10,color:"rgba(255,255,255,0.15)"}}>·</span>
   <span style={{fontSize:10,color:`${GOLD}`,letterSpacing:2,textTransform:"uppercase"}}>PBD Predictor</span>
 </div>
+      </main>
+
+      {/* Toast */}
+      {toast&&(
+        <div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:toast.type==="error"?"rgba(120,20,20,0.97)":"rgba(10,40,20,0.97)",border:`1px solid ${toast.type==="error"?"#f87171":"#4ade80"}`,borderRadius:10,padding:"11px 22px",color:"#fff",fontSize:12,fontWeight:600,zIndex:200,whiteSpace:"nowrap",boxShadow:"0 8px 32px rgba(0,0,0,0.6)"}}>
+          {toast.type==="error"?"✗ ":"✓ "}{toast.msg}
+        </div>
+      )}
+
+      <style>{`
+        input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+        input[type=number]{-moz-appearance:textfield}
+        *{box-sizing:border-box}
+      `}</style>
+ 
     </div>
   );
 }
