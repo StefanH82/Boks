@@ -364,7 +364,7 @@ export default function App() {
                 ))}
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                {["Your name","Password",...(authMode==="register"?["Confirm password"]:[])].map((ph,i)=>(
+                {["Your name and Surname","Password",...(authMode==="register"?["Confirm password"]:[])].map((ph,i)=>(
                   <input key={i} type={i===0?"text":"password"}
                     value={i===0?nameIn:i===1?passIn:confirmPass}
                     onChange={e=>{setAuthErr("");[setNameIn,setPassIn,setConfirmPass][i](e.target.value);}}
