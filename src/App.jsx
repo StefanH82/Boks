@@ -211,12 +211,12 @@ export default function App() {
 
       {/* Side images */}
       {isWideScreen && (
-        <div style={{position:"fixed",left:0,top:"50%",transform:"translateY(-50%)",width:286,height:650,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
+        <div style={{position:"fixed",left:0,top:"50%",transform:"translateY(-50%)",width:308,height:700,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
           <img src="/Left.jpg" alt="" style={{width:"100%",height:"100%",objectFit:"cover",opacity:0.85}}/>
         </div>
       )}
       {isWideScreen && (
-        <div style={{position:"fixed",right:0,top:"50%",transform:"translateY(-50%)",width:286,height:650,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
+        <div style={{position:"fixed",right:0,top:"50%",transform:"translateY(-50%)",width:308,height:700,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
           <img src="/Right.jpg" alt="" style={{width:"100%",height:"100%",objectFit:"cover",opacity:0.85}}/>
         </div>
       )}
