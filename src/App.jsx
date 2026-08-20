@@ -70,6 +70,41 @@ const db = {
       body:JSON.stringify({p_name:name,p_new_password:newPass})
     });
     if (!res.ok) throw new Error(await res.text());
+  },
+  async saveLineup(matchId, data) {
+    // Upsert lineup for this match
+    const del = await fetch(`${SB_URL}/rest/v1/bok_lineups?match_id=eq.${matchId}`,{
+      method:"DELETE",headers:{"apikey":SB_ANON,"Authorization":`Bearer ${SB_ANON}`,"Content-Type":"application/json"}
+    });
+    const ins = await fetch(`${SB_URL}/rest/v1/bok_lineups`,{
+      method:"POST",
+      headers:{"apikey":SB_ANON,"Authorization":`Bearer ${SB_ANON}`,"Content-Type":"application/json","Prefer":"return=minimal"},
+      body:JSON.stringify({
+        match_id: matchId,
+        home_team: data.home_team,
+        away_team: data.away_team,
+        home_starting: data.home?.starting || [],
+        home_bench: data.home?.bench || [],
+        away_starting: data.away?.starting || [],
+        away_bench: data.away?.bench || [],
+        saved_at: new Date().toISOString()
+      })
+    });
+    if (!ins.ok) throw new Error(await ins.text());
+  },
+  async loadLineups() {
+    const rows = await db.q("bok_lineups?select=match_id,home_team,away_team,home_starting,home_bench,away_starting,away_bench,saved_at") || [];
+    const map = {};
+    rows.forEach(r => {
+      map[r.match_id] = {
+        home_team: r.home_team,
+        away_team: r.away_team,
+        home: { starting: r.home_starting||[], bench: r.home_bench||[] },
+        away: { starting: r.away_starting||[], bench: r.away_bench||[] },
+        savedAt: r.saved_at ? new Date(r.saved_at).toLocaleTimeString() : ""
+      };
+    });
+    return map;
   }
 };
 
@@ -126,7 +161,6 @@ export default function App() {
   const [tick, setTick] = useState(0);
   const [adminUnlocked, setAdminUnlocked] = useState(false);
   const [adminPin, setAdminPin] = useState("");
-  const [lineupAdminMode, setLineupAdminMode] = useState(false);
   const [isWideScreen, setIsWideScreen] = useState(window.innerWidth > 1200);
 
  // Lineups state
@@ -146,6 +180,7 @@ export default function App() {
   useEffect(()=>{
     db.loadResults().then(setResults).catch(()=>{});
     db.loadLeaderboard().then(lb=>setLeaderboard(lb.map(r=>({name:r.name,points:r.points||0,count:r.predictions_count||0})))).catch(()=>{});
+    db.loadLineups().then(setLineups).catch(()=>{});
   },[]);
 
   const showToast = (msg, type="success") => { setToast({msg,type}); setTimeout(()=>setToast(null),3200); };
@@ -234,10 +269,15 @@ export default function App() {
       return n;
     });
   }
-  function saveLineup() {
-    setLineups(prev=>({...prev,[selectedMatch]:{...draft,savedAt:new Date().toLocaleTimeString()}}));
-    setEditMode(false);
-    showToast("Lineup saved!");
+  async function saveLineup() {
+    try {
+      await db.saveLineup(selectedMatch, draft);
+      setLineups(prev=>({...prev,[selectedMatch]:{...draft,savedAt:new Date().toLocaleTimeString()}}));
+      setEditMode(false);
+      showToast("Lineup saved!");
+    } catch(e) {
+      showToast("Save failed — "+e.message.slice(0,40),"error");
+    }
   }
 
   const totalPreds = Object.values(preds).filter(p=>p&&p.home!==""&&p.away!=="").length;
@@ -517,19 +557,7 @@ export default function App() {
   <div style={{paddingTop:20}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
       <h2 style={{margin:0,fontSize:16,color:"#fff",fontWeight:800}}>Team Lineups</h2>
-      <button onClick={()=>{
-        if (lineupAdminMode) { setLineupAdminMode(false); setEditMode(false); return; }
-        const pin = window.prompt("Enter admin PIN:");
-        if (pin === ADMIN_PIN) { setLineupAdminMode(true); showToast("Admin mode on"); }
-        else if (pin !== null) showToast("Wrong PIN","error");
-      }} style={{
-        background:lineupAdminMode?`${GREEN}20`:"rgba(255,255,255,0.05)",
-        border:`1px solid ${lineupAdminMode?GREEN:"rgba(255,255,255,0.1)"}`,
-        borderRadius:8,padding:"5px 12px",
-        color:lineupAdminMode?GOLD:"rgba(255,255,255,0.3)",
-        fontSize:10,fontWeight:lineupAdminMode?700:400,
-        cursor:"pointer",fontFamily:"inherit"
-      }}>{lineupAdminMode?"🔓 Admin · Exit":"🔐 Admin"}</button>
+      <span style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>AI-fetched · Starting XV + Bench</span>
     </div>
     {/* Match selector */}
     <div style={{display:"flex",flexDirection:"column",gap:3,marginBottom:20}}>
@@ -632,12 +660,12 @@ export default function App() {
         <div style={{textAlign:"center",padding:50,color:"rgba(255,255,255,0.2)",fontSize:13}}>
           <div style={{fontSize:40,marginBottom:12}}>📋</div>
           <div style={{marginBottom:16}}>No lineup entered yet</div>
-          {lineupAdminMode && (
+          {adminUnlocked && (
             <button onClick={()=>startEdit(match,lineup)} style={{padding:"10px 24px",background:`linear-gradient(135deg,${GREEN},#1a5c34)`,border:"none",borderRadius:20,color:"#fff",fontWeight:700,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
               ✏️ Enter Lineup
             </button>
           )}
-          {!lineupAdminMode && <div style={{fontSize:11,color:"rgba(255,255,255,0.2)"}}>Admin must enter lineup in the Admin tab</div>}
+          {!adminUnlocked && <div style={{fontSize:11,color:"rgba(255,255,255,0.2)"}}>Admin must enter lineup in the Admin tab</div>}
         </div>
       );
 
@@ -651,7 +679,7 @@ export default function App() {
           </div>
 
           {/* Edit / Save buttons — admin only */}
-          {lineupAdminMode && (
+          {adminUnlocked && (
             <div style={{display:"flex",gap:8,marginBottom:14,justifyContent:"center"}}>
               {!editMode ? (
                 <button onClick={()=>startEdit(match,lineup)} style={{padding:"7px 20px",background:`${GREEN}20`,border:`1px solid ${GREEN}50`,borderRadius:20,color:GOLD,fontWeight:700,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>
@@ -686,7 +714,7 @@ export default function App() {
         {/* ═══ ADMIN TAB ═══ */}
         {tab==="admin" && (
           <div style={{paddingTop:20}}>
-            {!lineupAdminMode?(
+            {!adminUnlocked?(
               <div style={{maxWidth:320,margin:"40px auto",background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:"40px 24px",textAlign:"center"}}>
                 <div style={{fontSize:32,marginBottom:12}}>🔐</div>
                 <h2 style={{margin:"0 0 8px",fontSize:16,color:"#fff"}}>Admin Panel</h2>
