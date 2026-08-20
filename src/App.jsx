@@ -132,6 +132,8 @@ export default function App() {
   const [lineups, setLineups] = useState({}); // { matchId: { home: [...], away: [...], fetchedAt: '' } }
   const [fetchingLineup, setFetchingLineup] = useState(null); // matchId being fetched
   const [selectedMatch, setSelectedMatch] = useState(BOK_MATCHES[0].id);
+  const [editMode, setEditMode] = useState(false);
+  const [draft, setDraft] = useState(null);
 
   useEffect(()=>{
     const t=setInterval(()=>setTick(n=>n+1),30000); return ()=>clearInterval(t);
@@ -203,6 +205,38 @@ export default function App() {
   function searchLineup(match) {
     const query = encodeURIComponent(`${match.home} vs ${match.away} ${new Date(match.kickoff).getFullYear()} rugby lineup team sheet`);
     window.open(`https://www.google.com/search?q=${query}`, "_blank");
+  }
+
+  // ── LINEUP EDIT FUNCTIONS ──────────────────────────────────────────────────
+  const POSITIONS = [
+    "Loosehead Prop","Hooker","Tighthead Prop","Lock","Lock",
+    "Blindside Flanker","Openside Flanker","No.8",
+    "Scrum-half","Fly-half","Left Wing","Inside Centre",
+    "Outside Centre","Right Wing","Fullback"
+  ];
+  const BENCH_POSITIONS = ["Hooker","Prop","Prop","Lock","Flanker","Scrum-half","Fly-half","Back"];
+
+  function startEdit(match, lineup) {
+    const empty = (count, startNum, positions) =>
+      Array.from({length:count},(_,i)=>({number:startNum+i,name:"",position:positions[i]||""}));
+    setDraft(lineup ? JSON.parse(JSON.stringify(lineup)) : {
+      home_team: match.home, away_team: match.away,
+      home: { starting: empty(15,1,POSITIONS), bench: empty(8,16,BENCH_POSITIONS) },
+      away: { starting: empty(15,1,POSITIONS), bench: empty(8,16,BENCH_POSITIONS) },
+    });
+    setEditMode(true);
+  }
+  function setPlayerName(side, section, idx, val) {
+    setDraft(d => {
+      const n = JSON.parse(JSON.stringify(d));
+      n[side][section][idx].name = val;
+      return n;
+    });
+  }
+  function saveLineup() {
+    setLineups(prev=>({...prev,[selectedMatch]:{...draft,savedAt:new Date().toLocaleTimeString()}}));
+    setEditMode(false);
+    showToast("Lineup saved!");
   }
 
   const totalPreds = Object.values(preds).filter(p=>p&&p.home!==""&&p.away!=="").length;
@@ -513,14 +547,6 @@ export default function App() {
       const lineup=lineups[selectedMatch];
       if (!match) return null;
 
-      const POSITIONS = [
-        "Loosehead Prop","Hooker","Tighthead Prop","Lock","Lock",
-        "Blindside Flanker","Openside Flanker","No.8",
-        "Scrum-half","Fly-half","Left Wing","Inside Centre",
-        "Outside Centre","Right Wing","Fullback"
-      ];
-      const BENCH_POSITIONS = ["Hooker","Prop","Prop","Lock","Flanker","Scrum-half","Fly-half","Back"];
-
       const renderTeamView = (teamData, teamName, isHome) => (
         <div style={{flex:1,minWidth:0}}>
           <div style={{padding:"10px 14px",marginBottom:8,background:isHome?`${GREEN}20`:"rgba(0,0,0,0.3)",border:`1px solid ${isHome?GREEN:"rgba(255,255,255,0.1)"}`,borderRadius:10,textAlign:"center"}}>
@@ -556,33 +582,6 @@ export default function App() {
       );
 
       // ── ADMIN EDIT MODE (only when admin tab unlocked) ──
-      const [editMode, setEditMode] = useState(false);
-      const [draft, setDraft] = useState(null);
-
-      function startEdit() {
-        const empty = (count, startNum, positions) =>
-          Array.from({length:count},(_,i)=>({number:startNum+i,name:"",position:positions[i]||""}));
-        setDraft(lineup ? JSON.parse(JSON.stringify(lineup)) : {
-          home_team: match.home, away_team: match.away,
-          home: { starting: empty(15,1,POSITIONS), bench: empty(8,16,BENCH_POSITIONS) },
-          away: { starting: empty(15,1,POSITIONS), bench: empty(8,16,BENCH_POSITIONS) },
-        });
-        setEditMode(true);
-      }
-
-      function setPlayerName(side, section, idx, val) {
-        setDraft(d => {
-          const n = JSON.parse(JSON.stringify(d));
-          n[side][section][idx].name = val;
-          return n;
-        });
-      }
-
-      function saveLineup() {
-        setLineups(prev=>({...prev,[match.id]:{...draft,savedAt:new Date().toLocaleTimeString()}}));
-        setEditMode(false);
-        showToast("Lineup saved!");
-      }
 
       const renderEditTeam = (side, teamName, isHome) => (
         <div style={{flex:1,minWidth:0}}>
@@ -621,7 +620,7 @@ export default function App() {
           <div style={{fontSize:40,marginBottom:12}}>📋</div>
           <div style={{marginBottom:16}}>No lineup entered yet</div>
           {adminUnlocked && (
-            <button onClick={startEdit} style={{padding:"10px 24px",background:`linear-gradient(135deg,${GREEN},#1a5c34)`,border:"none",borderRadius:20,color:"#fff",fontWeight:700,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
+            <button onClick={()=>startEdit(match,lineup)} style={{padding:"10px 24px",background:`linear-gradient(135deg,${GREEN},#1a5c34)`,border:"none",borderRadius:20,color:"#fff",fontWeight:700,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
               ✏️ Enter Lineup
             </button>
           )}
@@ -642,7 +641,7 @@ export default function App() {
           {adminUnlocked && (
             <div style={{display:"flex",gap:8,marginBottom:14,justifyContent:"center"}}>
               {!editMode ? (
-                <button onClick={startEdit} style={{padding:"7px 20px",background:`${GREEN}20`,border:`1px solid ${GREEN}50`,borderRadius:20,color:GOLD,fontWeight:700,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>
+                <button onClick={()=>startEdit(match,lineup)} style={{padding:"7px 20px",background:`${GREEN}20`,border:`1px solid ${GREEN}50`,borderRadius:20,color:GOLD,fontWeight:700,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>
                   ✏️ {lineup?"Edit Lineup":"Enter Lineup"}
                 </button>
               ) : (
