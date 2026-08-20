@@ -224,7 +224,7 @@ export default function App() {
               <div style={{width:60,height:60,borderRadius:10,background:`linear-gradient(135deg,${WHITE},#ffffff)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,boxShadow:`0 0 20px ${GREEN}60`}}><img src="/South_Africa_national_rugby_union_team.svg" alt="Springboks" style={{width:"80%",height:"80%",objectFit:"cover"}}/></div>
               <div>
                 <div style={{fontSize:17,fontWeight:800,color:"#fff",letterSpacing:0.3,lineHeight:1.1}}>Springboks 2026</div>
-                <div style={{fontSize:11,letterSpacing:3,color:GOLD,textTransform:"uppercase",marginTop:1}}>PBD Predictor</div>
+                <div style={{fontSize:11,fontWeight:600, letterSpacing:3,color:GOLD,textTransform:"uppercase",marginTop:1}}>PBD Predictor</div>
               </div>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
