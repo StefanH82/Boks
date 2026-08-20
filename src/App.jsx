@@ -267,7 +267,7 @@ export default function App() {
               <div style={{textAlign:"center",marginBottom:28}}>
                 <div style={{fontSize:48,marginBottom:10}}>🏉</div>
                 <h2 style={{margin:"0 0 4px",fontSize:20,color:"#fff",fontWeight:800}}>Springboks 2026</h2>
-                <p style={{margin:0,fontSize:13,color:"rgba(255,255,255,0.35)"}}>Remaining Tests · Aug – Nov 2026</p>
+                <p style={{margin:0,fontSize:13,color:"rgba(255,255,255,0.35)"}}>Remaining Tests · Aug – Sep 2026</p>
               </div>
               <div style={{display:"flex",background:"rgba(255,255,255,0.05)",borderRadius:10,padding:4,marginBottom:20}}>
                 {["login","register"].map(m=>(
