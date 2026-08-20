@@ -227,21 +227,48 @@ export default function App() {
     setFetchingLineup(match.id);
     try {
       const today = new Date().toLocaleDateString("en-GB",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-      const prompt = `Today is ${today}.\n\nSearch the web for the latest confirmed or predicted team lineups for this rugby test match:\n${match.home} vs ${match.away}\nDate: ${fmtDate(match.kickoff)} ${fmtTime(match.kickoff)}\nVenue: ${match.venue}\nStage: ${match.stage}\n\nReturn ONLY a JSON object, no markdown:\n{"home_team":"${match.home}","away_team":"${match.away}","home":{"starting":[{"number":1,"name":"Player Name","position":"Loosehead Prop"}],"bench":[{"number":16,"name":"Player Name","position":"Hooker"}]},"away":{"starting":[...],"bench":[...]},"source":"where you found this","confirmed":true}\n\nAlways return all 23 players per team. If not announced, predict based on recent form.`;
-      const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,
-          tools:[{type:"web_search_20250305",name:"web_search"}],
-          messages:[{role:"user",content:prompt}]})});
-      if (!res.ok) throw new Error(`API error ${res.status}`);
-      const raw = await res.text();
-      const data = JSON.parse(raw);
-      const text = (data.content?.filter(b=>b.type==="text").map(b=>b.text)||[]).join("\n");
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error("No JSON found");
-      const parsed = JSON.parse(jsonMatch[0]);
+      const prompt = `Today is ${today}. Search the web for the latest confirmed or predicted team lineups for this rugby test match: ${match.home} vs ${match.away}, ${fmtDate(match.kickoff)}, ${match.venue}. Return ONLY a valid JSON object with no markdown or extra text: {"home_team":"${match.home}","away_team":"${match.away}","home":{"starting":[{"number":1,"name":"Player Name","position":"Loosehead Prop"}],"bench":[{"number":16,"name":"Player Name","position":"Hooker"}]},"away":{"starting":[...],"bench":[...]},"source":"source name","confirmed":false}. Include all 23 players per team. If lineups not announced, use best predicted XV based on recent form.`;
+
+      const res = await fetch("/api/claude", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 3000,
+          tools: [{type:"web_search_20250305",name:"web_search"}],
+          messages: [{role:"user",content:prompt}]
+        })
+      });
+
+      const rawText = await res.text();
+      if (!rawText||rawText.trim()==="") throw new Error("Empty response — check ANTHROPIC_API_KEY in Vercel env vars");
+
+      let data;
+      try { data = JSON.parse(rawText); } catch(e) { throw new Error(`Bad JSON from proxy: ${rawText.slice(0,100)}`); }
+
+      if (data.error) throw new Error(data.error);
+
+      const textBlocks = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text);
+      const fullText = textBlocks.join("\n");
+
+      // Extract JSON — try strict match first, then loose
+      let parsed = null;
+      const strict = fullText.match(/\{[\s\S]*"home_team"[\s\S]*\}/);
+      if (strict) {
+        try { parsed = JSON.parse(strict[0]); } catch(e) {}
+      }
+      if (!parsed) {
+        const loose = fullText.match(/\{[\s\S]*\}/);
+        if (loose) { try { parsed = JSON.parse(loose[0]); } catch(e) {} }
+      }
+      if (!parsed) throw new Error("Could not parse lineup from AI response");
+
       setLineups(prev=>({...prev,[match.id]:{...parsed,fetchedAt:new Date().toLocaleTimeString()}}));
       showToast(`Lineup loaded for ${match.home} vs ${match.away}`);
-    } catch(e) { showToast("Failed to fetch lineup","error"); }
+    } catch(e) {
+      console.error("fetchLineup error:", e);
+      showToast(`Failed: ${e.message.slice(0,60)}`,"error");
+    }
     setFetchingLineup(null);
   }
 
