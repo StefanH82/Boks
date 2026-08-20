@@ -488,7 +488,6 @@ export default function App() {
     <div style={{display:"flex",flexDirection:"column",gap:3,marginBottom:20}}>
       {BOK_MATCHES.map(match=>{
         const lineup=lineups[match.id];
-        const isFetching=fetchingLineup===match.id;
         const isSelected=selectedMatch===match.id;
         return (
           <div key={match.id} onClick={()=>setSelectedMatch(match.id)} style={{
@@ -502,30 +501,27 @@ export default function App() {
               <div style={{fontSize:13,fontWeight:700,color:"#fff"}}>{match.home} vs {match.away}</div>
               <div style={{fontSize:10,color:"rgba(255,255,255,0.3)",marginTop:2}}>{fmtDate(match.kickoff)} · {match.venue}</div>
             </div>
-            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
-              {lineup&&<span style={{fontSize:9,color:GREEN,background:`${GREEN}15`,borderRadius:10,padding:"2px 8px"}}>{lineup.confirmed?"✓ Confirmed":"~ Predicted"} · {lineup.fetchedAt}</span>}
-              <button onClick={e=>{e.stopPropagation();searchLineup(match);}} style={{
-                padding:"5px 12px",background:`linear-gradient(135deg,${GREEN},#1a5c34)`,
-                border:"none",borderRadius:20,color:"#fff",
-                fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"
-              }}>🔍 Search Lineup</button>
-            </div>
+            {lineup&&<span style={{fontSize:9,color:GREEN,background:`${GREEN}15`,borderRadius:10,padding:"2px 8px",flexShrink:0}}>✓ Lineup set</span>}
           </div>
         );
       })}
     </div>
-    {/* Lineup display */}
+
+    {/* Lineup display / edit for selected match */}
     {(() => {
       const match=BOK_MATCHES.find(m=>m.id===selectedMatch);
       const lineup=lineups[selectedMatch];
       if (!match) return null;
-      if (!lineup) return (
-        <div style={{textAlign:"center",padding:60,color:"rgba(255,255,255,0.2)",fontSize:13}}>
-          <div style={{fontSize:40,marginBottom:12}}>📋</div>
-          Click <strong style={{color:GREEN}}>Fetch Lineup</strong> above to load the team sheet
-        </div>
-      );
-      const renderTeam=(teamData,teamName,isHome)=>(
+
+      const POSITIONS = [
+        "Loosehead Prop","Hooker","Tighthead Prop","Lock","Lock",
+        "Blindside Flanker","Openside Flanker","No.8",
+        "Scrum-half","Fly-half","Left Wing","Inside Centre",
+        "Outside Centre","Right Wing","Fullback"
+      ];
+      const BENCH_POSITIONS = ["Hooker","Prop","Prop","Lock","Flanker","Scrum-half","Fly-half","Back"];
+
+      const renderTeamView = (teamData, teamName, isHome) => (
         <div style={{flex:1,minWidth:0}}>
           <div style={{padding:"10px 14px",marginBottom:8,background:isHome?`${GREEN}20`:"rgba(0,0,0,0.3)",border:`1px solid ${isHome?GREEN:"rgba(255,255,255,0.1)"}`,borderRadius:10,textAlign:"center"}}>
             <div style={{fontSize:14,fontWeight:800,color:isHome?GOLD:"#fff"}}>{teamName}</div>
@@ -536,21 +532,21 @@ export default function App() {
               <div key={i} style={{display:"flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:7,padding:"6px 10px"}}>
                 <div style={{width:22,height:22,borderRadius:"50%",flexShrink:0,background:isHome?GREEN:"rgba(0,0,0,0.5)",border:`1px solid ${isHome?GOLD:"rgba(255,255,255,0.2)"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:isHome?GOLD:"#fff"}}>{p.number||i+1}</div>
                 <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:12,fontWeight:600,color:"#e8f0eb",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.name}</div>
-                  <div style={{fontSize:9,color:"rgba(255,255,255,0.3)"}}>{p.position}</div>
+                  <div style={{fontSize:12,fontWeight:600,color:"#e8f0eb"}}>{p.name||"TBD"}</div>
+                  <div style={{fontSize:9,color:"rgba(255,255,255,0.3)"}}>{p.position||POSITIONS[i]}</div>
                 </div>
               </div>
             ))}
           </div>
           {teamData?.bench?.length>0&&(<>
-            <div style={{padding:"6px 12px",marginBottom:6,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:7,textAlign:"center",fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.4)",letterSpacing:1,textTransform:"uppercase"}}>Bench</div>
+            <div style={{padding:"5px 12px",marginBottom:6,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:7,textAlign:"center",fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.4)",letterSpacing:1,textTransform:"uppercase"}}>Bench</div>
             <div style={{display:"flex",flexDirection:"column",gap:2}}>
               {teamData.bench.map((p,i)=>(
                 <div key={i} style={{display:"flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.015)",border:"1px solid rgba(255,255,255,0.04)",borderRadius:7,padding:"5px 10px"}}>
                   <div style={{width:20,height:20,borderRadius:"50%",flexShrink:0,background:"rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:"rgba(255,255,255,0.4)"}}>{p.number||i+16}</div>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:11,color:"rgba(255,255,255,0.6)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.name}</div>
-                    <div style={{fontSize:9,color:"rgba(255,255,255,0.25)"}}>{p.position}</div>
+                    <div style={{fontSize:11,color:"rgba(255,255,255,0.6)"}}>{p.name||"TBD"}</div>
+                    <div style={{fontSize:9,color:"rgba(255,255,255,0.25)"}}>{p.position||BENCH_POSITIONS[i]}</div>
                   </div>
                 </div>
               ))}
@@ -558,16 +554,116 @@ export default function App() {
           </>)}
         </div>
       );
+
+      // ── ADMIN EDIT MODE (only when admin tab unlocked) ──
+      const [editMode, setEditMode] = useState(false);
+      const [draft, setDraft] = useState(null);
+
+      function startEdit() {
+        const empty = (count, startNum, positions) =>
+          Array.from({length:count},(_,i)=>({number:startNum+i,name:"",position:positions[i]||""}));
+        setDraft(lineup ? JSON.parse(JSON.stringify(lineup)) : {
+          home_team: match.home, away_team: match.away,
+          home: { starting: empty(15,1,POSITIONS), bench: empty(8,16,BENCH_POSITIONS) },
+          away: { starting: empty(15,1,POSITIONS), bench: empty(8,16,BENCH_POSITIONS) },
+        });
+        setEditMode(true);
+      }
+
+      function setPlayerName(side, section, idx, val) {
+        setDraft(d => {
+          const n = JSON.parse(JSON.stringify(d));
+          n[side][section][idx].name = val;
+          return n;
+        });
+      }
+
+      function saveLineup() {
+        setLineups(prev=>({...prev,[match.id]:{...draft,savedAt:new Date().toLocaleTimeString()}}));
+        setEditMode(false);
+        showToast("Lineup saved!");
+      }
+
+      const renderEditTeam = (side, teamName, isHome) => (
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{padding:"8px 14px",marginBottom:8,background:isHome?`${GREEN}20`:"rgba(0,0,0,0.3)",border:`1px solid ${isHome?GREEN:"rgba(255,255,255,0.1)"}`,borderRadius:10,textAlign:"center"}}>
+            <div style={{fontSize:13,fontWeight:800,color:isHome?GOLD:"#fff"}}>{teamName}</div>
+          </div>
+          <div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.4)",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>Starting XV</div>
+          <div style={{display:"flex",flexDirection:"column",gap:3,marginBottom:10}}>
+            {(draft[side]?.starting||[]).map((p,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:6}}>
+                <div style={{width:22,height:22,borderRadius:"50%",flexShrink:0,background:isHome?GREEN:"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:isHome?GOLD:"#fff"}}>{p.number}</div>
+                <input value={p.name} onChange={e=>setPlayerName(side,"starting",i,e.target.value)}
+                  placeholder={p.position}
+                  style={{flex:1,padding:"5px 8px",background:"rgba(255,255,255,0.07)",border:`1px solid ${isHome?`${GREEN}40`:"rgba(255,255,255,0.12)"}`,borderRadius:6,color:"#fff",fontSize:11,fontFamily:"inherit",outline:"none"}}
+                />
+              </div>
+            ))}
+          </div>
+          <div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.4)",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>Bench</div>
+          <div style={{display:"flex",flexDirection:"column",gap:3}}>
+            {(draft[side]?.bench||[]).map((p,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:6}}>
+                <div style={{width:22,height:22,borderRadius:"50%",flexShrink:0,background:"rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.4)"}}>{p.number}</div>
+                <input value={p.name} onChange={e=>setPlayerName(side,"bench",i,e.target.value)}
+                  placeholder={p.position}
+                  style={{flex:1,padding:"5px 8px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:6,color:"#fff",fontSize:11,fontFamily:"inherit",outline:"none"}}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+
+      if (!lineup && !editMode) return (
+        <div style={{textAlign:"center",padding:50,color:"rgba(255,255,255,0.2)",fontSize:13}}>
+          <div style={{fontSize:40,marginBottom:12}}>📋</div>
+          <div style={{marginBottom:16}}>No lineup entered yet</div>
+          {adminUnlocked && (
+            <button onClick={startEdit} style={{padding:"10px 24px",background:`linear-gradient(135deg,${GREEN},#1a5c34)`,border:"none",borderRadius:20,color:"#fff",fontWeight:700,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
+              ✏️ Enter Lineup
+            </button>
+          )}
+          {!adminUnlocked && <div style={{fontSize:11,color:"rgba(255,255,255,0.2)"}}>Admin must enter lineup in the Admin tab</div>}
+        </div>
+      );
+
       return (
         <div>
-          <div style={{textAlign:"center",marginBottom:16,padding:"12px",background:`${GREEN}08`,border:`1px solid ${GREEN}25`,borderRadius:12}}>
+          {/* Match header */}
+          <div style={{textAlign:"center",marginBottom:14,padding:"12px",background:`${GREEN}08`,border:`1px solid ${GREEN}25`,borderRadius:12}}>
             <div style={{fontSize:15,fontWeight:800,color:"#fff"}}>{match.home} vs {match.away}</div>
             <div style={{fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:4}}>{match.stage} · {fmtDate(match.kickoff)} · {match.venue}</div>
-            {lineup.source&&<div style={{fontSize:9,color:`${GREEN}80`,marginTop:4}}>Source: {lineup.source}</div>}
+            {lineup?.savedAt&&<div style={{fontSize:9,color:`${GREEN}80`,marginTop:4}}>Last updated: {lineup.savedAt}</div>}
           </div>
+
+          {/* Edit / Save buttons — admin only */}
+          {adminUnlocked && (
+            <div style={{display:"flex",gap:8,marginBottom:14,justifyContent:"center"}}>
+              {!editMode ? (
+                <button onClick={startEdit} style={{padding:"7px 20px",background:`${GREEN}20`,border:`1px solid ${GREEN}50`,borderRadius:20,color:GOLD,fontWeight:700,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>
+                  ✏️ {lineup?"Edit Lineup":"Enter Lineup"}
+                </button>
+              ) : (
+                <>
+                  <button onClick={saveLineup} style={{padding:"7px 20px",background:`linear-gradient(135deg,${GREEN},#1a5c34)`,border:"none",borderRadius:20,color:"#fff",fontWeight:700,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>
+                    ✓ Save Lineup
+                  </button>
+                  <button onClick={()=>setEditMode(false)} style={{padding:"7px 16px",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:20,color:"rgba(255,255,255,0.4)",fontWeight:600,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Two-column display or edit */}
           <div style={{display:"flex",gap:10}}>
-            {renderTeam(lineup.home,lineup.home_team||match.home,true)}
-            {renderTeam(lineup.away,lineup.away_team||match.away,false)}
+            {editMode && draft
+              ? <>{renderEditTeam("home", draft.home_team||match.home, true)}{renderEditTeam("away", draft.away_team||match.away, false)}</>
+              : <>{renderTeamView(lineup?.home, lineup?.home_team||match.home, true)}{renderTeamView(lineup?.away, lineup?.away_team||match.away, false)}</>
+            }
           </div>
         </div>
       );
