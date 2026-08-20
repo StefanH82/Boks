@@ -128,6 +128,11 @@ export default function App() {
   const [adminPin, setAdminPin] = useState("");
   const [isWideScreen, setIsWideScreen] = useState(window.innerWidth > 1200);
 
+ // Lineups state
+  const [lineups, setLineups] = useState({}); // { matchId: { home: [...], away: [...], fetchedAt: '' } }
+  const [fetchingLineup, setFetchingLineup] = useState(null); // matchId being fetched
+  const [selectedMatch, setSelectedMatch] = useState(BOK_MATCHES[0].id);
+
   useEffect(()=>{
     const t=setInterval(()=>setTick(n=>n+1),30000); return ()=>clearInterval(t);
   },[]);
@@ -195,7 +200,28 @@ export default function App() {
     } catch(e) { showToast("Save failed — check connection","error"); }
     setSaving(false);
   }
-
+  async function fetchLineup(match) {
+  if (fetchingLineup) return;
+  setFetchingLineup(match.id);
+  try {
+    const today = new Date().toLocaleDateString("en-GB",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+    const prompt = `Today is ${today}.\n\nSearch the web for the latest confirmed or predicted team lineups for this rugby test match:\n${match.home} vs ${match.away}\nDate: ${fmtDate(match.kickoff)} ${fmtTime(match.kickoff)}\nVenue: ${match.venue}\nStage: ${match.stage}\n\nReturn ONLY a JSON object, no markdown:\n{"home_team":"${match.home}","away_team":"${match.away}","home":{"starting":[{"number":1,"name":"Player Name","position":"Loosehead Prop"}],"bench":[{"number":16,"name":"Player Name","position":"Hooker"}]},"away":{"starting":[...],"bench":[...]},"source":"where you found this","confirmed":true}\n\nAlways return all 23 players per team. If not announced, predict based on recent form.`;
+    const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,
+        tools:[{type:"web_search_20250305",name:"web_search"}],
+        messages:[{role:"user",content:prompt}]})});
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    const raw = await res.text();
+    const data = JSON.parse(raw);
+    const text = (data.content?.filter(b=>b.type==="text").map(b=>b.text)||[]).join("\n");
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("No JSON found");
+    const parsed = JSON.parse(jsonMatch[0]);
+    setLineups(prev=>({...prev,[match.id]:{...parsed,fetchedAt:new Date().toLocaleTimeString()}}));
+    showToast(`Lineup loaded for ${match.home} vs ${match.away}`);
+  } catch(e) { showToast("Failed to fetch lineup","error"); }
+  setFetchingLineup(null);
+}
   const totalPreds = Object.values(preds).filter(p=>p&&p.home!==""&&p.away!=="").length;
 
   return (
@@ -467,6 +493,104 @@ export default function App() {
             )}
           </div>
         )}
+
+        {/* ═══ LINEUPS TAB ═══ */}
+{tab==="lineups" && (
+  <div style={{paddingTop:20}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+      <h2 style={{margin:0,fontSize:16,color:"#fff",fontWeight:800}}>Team Lineups</h2>
+      <span style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>AI-fetched · Starting XV + Bench</span>
+    </div>
+    {/* Match selector */}
+    <div style={{display:"flex",flexDirection:"column",gap:3,marginBottom:20}}>
+      {BOK_MATCHES.map(match=>{
+        const lineup=lineups[match.id];
+        const isFetching=fetchingLineup===match.id;
+        const isSelected=selectedMatch===match.id;
+        return (
+          <div key={match.id} onClick={()=>setSelectedMatch(match.id)} style={{
+            background:isSelected?`${GREEN}15`:"rgba(255,255,255,0.025)",
+            border:`1px solid ${isSelected?GREEN:"rgba(255,255,255,0.06)"}`,
+            borderRadius:10,padding:"10px 14px",cursor:"pointer",
+            display:"flex",alignItems:"center",gap:12
+          }}>
+            <div style={{flex:1}}>
+              <div style={{fontSize:11,color:isSelected?GOLD:"rgba(255,255,255,0.35)",fontWeight:700,textTransform:"uppercase",marginBottom:3}}>{match.stage}</div>
+              <div style={{fontSize:13,fontWeight:700,color:"#fff"}}>{match.home} vs {match.away}</div>
+              <div style={{fontSize:10,color:"rgba(255,255,255,0.3)",marginTop:2}}>{fmtDate(match.kickoff)} · {match.venue}</div>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
+              {lineup&&<span style={{fontSize:9,color:GREEN,background:`${GREEN}15`,borderRadius:10,padding:"2px 8px"}}>{lineup.confirmed?"✓ Confirmed":"~ Predicted"} · {lineup.fetchedAt}</span>}
+              <button onClick={e=>{e.stopPropagation();fetchLineup(match);}} disabled={isFetching} style={{
+                padding:"5px 12px",background:isFetching?`${GREEN}20`:`linear-gradient(135deg,${GREEN},#1a5c34)`,
+                border:"none",borderRadius:20,color:isFetching?"rgba(255,255,255,0.4)":"#fff",
+                fontSize:10,fontWeight:700,cursor:isFetching?"not-allowed":"pointer",fontFamily:"inherit"
+              }}>{isFetching?"⏳ Fetching…":lineup?"↻ Refresh":"🔍 Fetch Lineup"}</button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+    {/* Lineup display */}
+    {(() => {
+      const match=BOK_MATCHES.find(m=>m.id===selectedMatch);
+      const lineup=lineups[selectedMatch];
+      if (!match) return null;
+      if (!lineup) return (
+        <div style={{textAlign:"center",padding:60,color:"rgba(255,255,255,0.2)",fontSize:13}}>
+          <div style={{fontSize:40,marginBottom:12}}>📋</div>
+          Click <strong style={{color:GREEN}}>Fetch Lineup</strong> above to load the team sheet
+        </div>
+      );
+      const renderTeam=(teamData,teamName,isHome)=>(
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{padding:"10px 14px",marginBottom:8,background:isHome?`${GREEN}20`:"rgba(0,0,0,0.3)",border:`1px solid ${isHome?GREEN:"rgba(255,255,255,0.1)"}`,borderRadius:10,textAlign:"center"}}>
+            <div style={{fontSize:14,fontWeight:800,color:isHome?GOLD:"#fff"}}>{teamName}</div>
+            <div style={{fontSize:10,color:"rgba(255,255,255,0.4)",marginTop:2}}>Starting XV</div>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:2,marginBottom:10}}>
+            {(teamData?.starting||[]).map((p,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:7,padding:"6px 10px"}}>
+                <div style={{width:22,height:22,borderRadius:"50%",flexShrink:0,background:isHome?GREEN:"rgba(0,0,0,0.5)",border:`1px solid ${isHome?GOLD:"rgba(255,255,255,0.2)"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:isHome?GOLD:"#fff"}}>{p.number||i+1}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:12,fontWeight:600,color:"#e8f0eb",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.name}</div>
+                  <div style={{fontSize:9,color:"rgba(255,255,255,0.3)"}}>{p.position}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {teamData?.bench?.length>0&&(<>
+            <div style={{padding:"6px 12px",marginBottom:6,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:7,textAlign:"center",fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.4)",letterSpacing:1,textTransform:"uppercase"}}>Bench</div>
+            <div style={{display:"flex",flexDirection:"column",gap:2}}>
+              {teamData.bench.map((p,i)=>(
+                <div key={i} style={{display:"flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.015)",border:"1px solid rgba(255,255,255,0.04)",borderRadius:7,padding:"5px 10px"}}>
+                  <div style={{width:20,height:20,borderRadius:"50%",flexShrink:0,background:"rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:"rgba(255,255,255,0.4)"}}>{p.number||i+16}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:11,color:"rgba(255,255,255,0.6)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.name}</div>
+                    <div style={{fontSize:9,color:"rgba(255,255,255,0.25)"}}>{p.position}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>)}
+        </div>
+      );
+      return (
+        <div>
+          <div style={{textAlign:"center",marginBottom:16,padding:"12px",background:`${GREEN}08`,border:`1px solid ${GREEN}25`,borderRadius:12}}>
+            <div style={{fontSize:15,fontWeight:800,color:"#fff"}}>{match.home} vs {match.away}</div>
+            <div style={{fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:4}}>{match.stage} · {fmtDate(match.kickoff)} · {match.venue}</div>
+            {lineup.source&&<div style={{fontSize:9,color:`${GREEN}80`,marginTop:4}}>Source: {lineup.source}</div>}
+          </div>
+          <div style={{display:"flex",gap:10}}>
+            {renderTeam(lineup.home,lineup.home_team||match.home,true)}
+            {renderTeam(lineup.away,lineup.away_team||match.away,false)}
+          </div>
+        </div>
+      );
+    })()}
+  </div>
+)}
 
         {/* ═══ ADMIN TAB ═══ */}
         {tab==="admin" && (
