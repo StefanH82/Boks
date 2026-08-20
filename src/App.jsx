@@ -203,7 +203,7 @@ export default function App() {
   const totalPreds = Object.values(preds).filter(p=>p&&p.home!==""&&p.away!=="").length;
 
   return (
-    <div style={{minHeight:"100vh",background:DARK,fontFamily:"'Inter',system-ui,sans-serif",color:"#e8f0eb",position:"relative",overflowX:"hidden"}}>
+    <div style={{minHeight:"100vh",background:GREEN,fontFamily:"'Inter',system-ui,sans-serif",color:"#e8f0eb",position:"relative",overflowX:"hidden"}}>
 
       {/* Green top bar */}
       <div style={{position:"fixed",top:0,left:0,right:0,height:3,zIndex:100,background:`linear-gradient(90deg,transparent,${GREEN} 30%,${GOLD} 50%,${GREEN} 70%,transparent)`}}/>
