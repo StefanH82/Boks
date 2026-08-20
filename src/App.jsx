@@ -225,11 +225,13 @@ export default function App() {
               <div>
                 <div style={{fontSize:17,fontWeight:800,color:"#fff",letterSpacing:0.3,lineHeight:1.1}}>Springboks 2026</div>
                 <div style={{fontSize:11,fontWeight:600, letterSpacing:3,color:GOLD,textTransform:"uppercase",marginTop:1}}>PBD Predictor</div>
-                <div style={{width:60,height:60,borderRadius:10,background:`linear-gradient(135deg,${WHITE},#ffffff)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,boxShadow:`0 0 20px ${GREEN}60`}}><img src="/All Blacks.png" alt="All Blacks" style={{width:"80%",height:"80%",objectFit:"cover"}}/></div>
               </div>
             </div>
-            <div style={{display:"flex",alignItems:"center",gap:10}}>
-              {user && (
+           <div style={{display:"flex",alignItems:"center",gap:10}}>
+  <div style={{width:60,height:60,borderRadius:10,background:`linear-gradient(135deg,${WHITE},#ffffff)`,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 0 20px ${GREEN}60`}}>
+    <img src="/All Blacks.png" alt="All Blacks" style={{width:"80%",height:"80%",objectFit:"cover"}}/>
+  </div>
+  {user && (
                 <>
                   <div style={{display:"flex",alignItems:"center",gap:7,background:`${GREEN}18`,border:`1px solid ${GREEN}35`,borderRadius:30,padding:"5px 12px 5px 6px"}}>
                     <div style={{width:26,height:26,borderRadius:"50%",background:GREEN,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#fff"}}>{getInitials(user.name)}</div>
