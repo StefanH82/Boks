@@ -36,7 +36,7 @@
     --text-h: #f3f4f6;
     --bg: .horizontal-gradient {
   /* Flows from left to right */
-  background-image: linear-gradient(to right, #FFC425, #000000;
+  background-image: linear-gradient(to right, #FFC425, #000000);
 };
     --border: #2e303a;
     --code-bg: #1f2028;
