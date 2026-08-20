@@ -579,6 +579,21 @@ export default function App() {
         input[type=number]{-moz-appearance:textfield}
         *{box-sizing:border-box}
       `}</style>
+      {/* Sticky Footer */}
+<div style={{
+  position:"fixed",bottom:0,left:0,right:0,zIndex:50,
+  background:"rgba(0,0,0,0.95)",
+  borderTop:`1px solid ${GOLD}30`,
+  backdropFilter:"blur(10px)",
+  padding:"10px 20px",
+  display:"flex",alignItems:"center",justifyContent:"center",gap:20
+}}>
+  <span style={{fontSize:10,color:`${GOLD}60`,letterSpacing:2,textTransform:"uppercase"}}>Springboks 2026</span>
+  <span style={{fontSize:10,color:"rgba(255,255,255,0.15)"}}>·</span>
+  <span style={{fontSize:10,color:"rgba(255,255,255,0.2)"}}>+10 exact score · +5 correct result · All times SAST</span>
+  <span style={{fontSize:10,color:"rgba(255,255,255,0.15)"}}>·</span>
+  <span style={{fontSize:10,color:`${GOLD}60`,letterSpacing:2,textTransform:"uppercase"}}>PBD Predictor</span>
+</div>
     </div>
   );
 }
