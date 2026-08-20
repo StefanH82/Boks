@@ -587,11 +587,11 @@ export default function App() {
   padding:"10px 20px",
   display:"flex",alignItems:"center",justifyContent:"center",gap:20
 }}>
-  <span style={{fontSize:10,color:`${GOLD}`,letterSpacing:2,textTransform:"uppercase"}}>Springboks 2026</span>
-  <span style={{fontSize:10,color:"rgba(255,255,255,0.15)"}}>·</span>
-  <span style={{fontSize:10,color:"rgba(255,255,255,0.2)"}}>+10 exact score · +5 correct result · All times SAST</span>
-  <span style={{fontSize:10,color:"rgba(255,255,255,0.15)"}}>·</span>
-  <span style={{fontSize:10,color:`${GOLD}`,letterSpacing:2,textTransform:"uppercase"}}>PBD Predictor</span>
+  <span style={{fontSize:13,color:`${GOLD}`,letterSpacing:2,textTransform:"uppercase"}}>Springboks 2026</span>
+  <span style={{fontSize:13,color:"rgba(255,255,255,0.15)"}}>·</span>
+  <span style={{fontSize:13,color:"rgba(255,255,255)"}}>+10 exact score · +5 correct result · All times SAST</span>
+  <span style={{fontSize:13,color:"rgba(255,255,255,0.15)"}}>·</span>
+  <span style={{fontSize:13,color:`${GOLD}`,letterSpacing:2,textTransform:"uppercase"}}>PBD Predictor</span>
 </div>
     </div>
   );
