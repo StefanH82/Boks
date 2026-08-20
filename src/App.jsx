@@ -581,7 +581,7 @@ export default function App() {
         *{box-sizing:border-box}
       `}</style>
  {/* Green bottom bar */}
-      <div style={{position:"fixed",top:0,left:0,right:0,height:3,zIndex:100,background:`linear-gradient(90deg,transparent,${GREEN} 30%,${GOLD} 50%,${GREEN} 70%,transparent)`}}/></div>
+      <div style={{position:"fixed",top:0,left:0,right:0,height:3,zIndex:100,background:`linear-gradient(90deg,transparent,${GREEN} 30%,${GOLD} 50%,${GREEN} 70%,transparent)`}}/>
         {/* Sticky Footer */}
 <div style={{
   position:"fixed",bottom:0,left:0,right:0,zIndex:50,
