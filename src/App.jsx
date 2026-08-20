@@ -211,12 +211,12 @@ export default function App() {
 
       {/* Side images */}
       {isWideScreen && (
-        <div style={{position:"fixed",left:0,top:"50%",transform:"translateY(-50%)",width:308,height:700,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
+        <div style={{position:"fixed",left:0,top:"50%",transform:"translateY(-50%)",width:352,height:800,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
           <img src="/Left.jpg" alt="" style={{width:"100%",height:"100%",objectFit:"cover",opacity:0.85}}/>
         </div>
       )}
       {isWideScreen && (
-        <div style={{position:"fixed",right:0,top:"50%",transform:"translateY(-50%)",width:308,height:700,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
+        <div style={{position:"fixed",right:0,top:"50%",transform:"translateY(-50%)",width:352,height:800,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
           <img src="/Right.jpg" alt="" style={{width:"100%",height:"100%",objectFit:"cover",opacity:0.85}}/>
         </div>
       )}
@@ -588,11 +588,11 @@ export default function App() {
   padding:"10px 20px",
   display:"flex",alignItems:"center",justifyContent:"center",gap:20
 }}>
-  <span style={{fontSize:10,color:`${GOLD}60`,letterSpacing:2,textTransform:"uppercase"}}>Springboks 2026</span>
+  <span style={{fontSize:10,color:`${GOLD}`,letterSpacing:2,textTransform:"uppercase"}}>Springboks 2026</span>
   <span style={{fontSize:10,color:"rgba(255,255,255,0.15)"}}>·</span>
   <span style={{fontSize:10,color:"rgba(255,255,255,0.2)"}}>+10 exact score · +5 correct result · All times SAST</span>
   <span style={{fontSize:10,color:"rgba(255,255,255,0.15)"}}>·</span>
-  <span style={{fontSize:10,color:`${GOLD}60`,letterSpacing:2,textTransform:"uppercase"}}>PBD Predictor</span>
+  <span style={{fontSize:10,color:`${GOLD}`,letterSpacing:2,textTransform:"uppercase"}}>PBD Predictor</span>
 </div>
     </div>
   );
