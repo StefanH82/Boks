@@ -126,6 +126,7 @@ export default function App() {
   const [tick, setTick] = useState(0);
   const [adminUnlocked, setAdminUnlocked] = useState(false);
   const [adminPin, setAdminPin] = useState("");
+  const [lineupAdminMode, setLineupAdminMode] = useState(false);
   const [isWideScreen, setIsWideScreen] = useState(window.innerWidth > 1200);
 
  // Lineups state
@@ -516,7 +517,19 @@ export default function App() {
   <div style={{paddingTop:20}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
       <h2 style={{margin:0,fontSize:16,color:"#fff",fontWeight:800}}>Team Lineups</h2>
-      <span style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>AI-fetched · Starting XV + Bench</span>
+      <button onClick={()=>{
+        if (lineupAdminMode) { setLineupAdminMode(false); setEditMode(false); return; }
+        const pin = window.prompt("Enter admin PIN:");
+        if (pin === ADMIN_PIN) { setLineupAdminMode(true); showToast("Admin mode on"); }
+        else if (pin !== null) showToast("Wrong PIN","error");
+      }} style={{
+        background:lineupAdminMode?`${GREEN}20`:"rgba(255,255,255,0.05)",
+        border:`1px solid ${lineupAdminMode?GREEN:"rgba(255,255,255,0.1)"}`,
+        borderRadius:8,padding:"5px 12px",
+        color:lineupAdminMode?GOLD:"rgba(255,255,255,0.3)",
+        fontSize:10,fontWeight:lineupAdminMode?700:400,
+        cursor:"pointer",fontFamily:"inherit"
+      }}>{lineupAdminMode?"🔓 Admin · Exit":"🔐 Admin"}</button>
     </div>
     {/* Match selector */}
     <div style={{display:"flex",flexDirection:"column",gap:3,marginBottom:20}}>
@@ -619,12 +632,12 @@ export default function App() {
         <div style={{textAlign:"center",padding:50,color:"rgba(255,255,255,0.2)",fontSize:13}}>
           <div style={{fontSize:40,marginBottom:12}}>📋</div>
           <div style={{marginBottom:16}}>No lineup entered yet</div>
-          {adminUnlocked && (
+          {lineupAdminMode && (
             <button onClick={()=>startEdit(match,lineup)} style={{padding:"10px 24px",background:`linear-gradient(135deg,${GREEN},#1a5c34)`,border:"none",borderRadius:20,color:"#fff",fontWeight:700,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
               ✏️ Enter Lineup
             </button>
           )}
-          {!adminUnlocked && <div style={{fontSize:11,color:"rgba(255,255,255,0.2)"}}>Admin must enter lineup in the Admin tab</div>}
+          {!lineupAdminMode && <div style={{fontSize:11,color:"rgba(255,255,255,0.2)"}}>Admin must enter lineup in the Admin tab</div>}
         </div>
       );
 
@@ -638,7 +651,7 @@ export default function App() {
           </div>
 
           {/* Edit / Save buttons — admin only */}
-          {adminUnlocked && (
+          {lineupAdminMode && (
             <div style={{display:"flex",gap:8,marginBottom:14,justifyContent:"center"}}>
               {!editMode ? (
                 <button onClick={()=>startEdit(match,lineup)} style={{padding:"7px 20px",background:`${GREEN}20`,border:`1px solid ${GREEN}50`,borderRadius:20,color:GOLD,fontWeight:700,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>
@@ -673,7 +686,7 @@ export default function App() {
         {/* ═══ ADMIN TAB ═══ */}
         {tab==="admin" && (
           <div style={{paddingTop:20}}>
-            {!adminUnlocked?(
+            {!lineupAdminMode?(
               <div style={{maxWidth:320,margin:"40px auto",background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:"40px 24px",textAlign:"center"}}>
                 <div style={{fontSize:32,marginBottom:12}}>🔐</div>
                 <h2 style={{margin:"0 0 8px",fontSize:16,color:"#fff"}}>Admin Panel</h2>
