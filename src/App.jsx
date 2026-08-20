@@ -110,7 +110,7 @@ const ADMIN_PIN = "boks2026SH";
 const GREEN = "#007749";
 const GOLD = "#FFC425";
 const DARK = "#1a1f1e";
-const WHITE = #FFFFFF;
+const WHITE = "#FFFFFF";
 const CARD = "rgba(255,255,255,0.04)";
 
 export default function App() {
