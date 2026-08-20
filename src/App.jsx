@@ -341,21 +341,21 @@ export default function App() {
                       borderRadius:10,padding:"10px 12px",opacity:locked&&!hasResult?0.65:1
                     }}>
                       {/* Stage label */}
-                      <div style={{fontSize:9,color:`${GREEN}90`,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:6}}>{match.stage}</div>
+                      <div style={{fontSize:13,color:`${GREEN}90`,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:6}}>{match.stage}</div>
                       <div style={{display:"flex",alignItems:"center",gap:8}}>
                         {/* Time col */}
                         <div style={{minWidth:64,textAlign:"center",flexShrink:0}}>
                           {hasResult?(
-                            <div style={{fontSize:10,color:"rgba(255,255,255,0.3)",fontWeight:600}}>FT</div>
+                            <div style={{fontSize:13,color:"rgba(255,255,255,0.3)",fontWeight:600}}>FT</div>
                           ):locked?(
-                            <div style={{fontSize:11,color:GOLD}}>🔒</div>
+                            <div style={{fontSize:13,color:GOLD}}>🔒</div>
                           ):deadline?(
-                            <div style={{fontSize:10,color:GOLD,fontWeight:700}}>{deadline}</div>
+                            <div style={{fontSize:13,color:GOLD,fontWeight:700}}>{deadline}</div>
                           ):match.kickoff?(
-                            <div style={{fontSize:9,color:"rgba(255,255,255,0.3)"}}>
+                            <div style={{fontSize:13,color:"rgba(255,255,255,0.3)"}}>
                               {fmtDate(match.kickoff)}<br/>{fmtTime(match.kickoff)}
                             </div>
-                          ):<div style={{fontSize:9,color:"rgba(255,255,255,0.2)"}}>TBD</div>}
+                          ):<div style={{fontSize:13,color:"rgba(255,255,255,0.2)"}}>TBD</div>}
                           {ptsBadge&&<div style={{marginTop:3,fontSize:10,fontWeight:800,color:ptsBadge.c,background:ptsBadge.b,borderRadius:4,padding:"1px 5px",display:"inline-block"}}>{ptsBadge.v}</div>}
                         </div>
                         {/* Home */}
