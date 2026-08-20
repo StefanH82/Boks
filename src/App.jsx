@@ -222,6 +222,29 @@ export default function App() {
   } catch(e) { showToast("Failed to fetch lineup","error"); }
   setFetchingLineup(null);
 }
+  async function fetchLineup(match) {
+    if (fetchingLineup) return;
+    setFetchingLineup(match.id);
+    try {
+      const today = new Date().toLocaleDateString("en-GB",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+      const prompt = `Today is ${today}.\n\nSearch the web for the latest confirmed or predicted team lineups for this rugby test match:\n${match.home} vs ${match.away}\nDate: ${fmtDate(match.kickoff)} ${fmtTime(match.kickoff)}\nVenue: ${match.venue}\nStage: ${match.stage}\n\nReturn ONLY a JSON object, no markdown:\n{"home_team":"${match.home}","away_team":"${match.away}","home":{"starting":[{"number":1,"name":"Player Name","position":"Loosehead Prop"}],"bench":[{"number":16,"name":"Player Name","position":"Hooker"}]},"away":{"starting":[...],"bench":[...]},"source":"where you found this","confirmed":true}\n\nAlways return all 23 players per team. If not announced, predict based on recent form.`;
+      const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,
+          tools:[{type:"web_search_20250305",name:"web_search"}],
+          messages:[{role:"user",content:prompt}]})});
+      if (!res.ok) throw new Error(`API error ${res.status}`);
+      const raw = await res.text();
+      const data = JSON.parse(raw);
+      const text = (data.content?.filter(b=>b.type==="text").map(b=>b.text)||[]).join("\n");
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error("No JSON found");
+      const parsed = JSON.parse(jsonMatch[0]);
+      setLineups(prev=>({...prev,[match.id]:{...parsed,fetchedAt:new Date().toLocaleTimeString()}}));
+      showToast(`Lineup loaded for ${match.home} vs ${match.away}`);
+    } catch(e) { showToast("Failed to fetch lineup","error"); }
+    setFetchingLineup(null);
+  }
+
   const totalPreds = Object.values(preds).filter(p=>p&&p.home!==""&&p.away!=="").length;
 
   return (
@@ -271,7 +294,7 @@ export default function App() {
           </div>
           {/* Nav */}
           <div style={{display:"flex",gap:0,justifyContent:"center"}}>
-            {[{id:"predict",label:"Predict"},{id:"leaderboard",label:"Leaderboard"},{id:"admin",label:"Admin"}].map(t=>(
+            {[{id:"predict",label:"Predict"},{id:"leaderboard",label:"Leaderboard"},{id:"lineups",label:"Lineups"},{id:"admin",label:"Admin"}].map(t=>(
               <button key={t.id} onClick={()=>setTab(t.id)} style={{
                 padding:"9px 20px",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",
                 fontSize:13,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",
