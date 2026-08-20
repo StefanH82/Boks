@@ -580,13 +580,11 @@ export default function App() {
         input[type=number]{-moz-appearance:textfield}
         *{box-sizing:border-box}
       `}</style>
- {/* Green bottom bar */}
-      <div style={{position:"fixed",top:0,left:0,right:0,height:3,zIndex:100,background:`linear-gradient(90deg,transparent,${GREEN} 30%,${GOLD} 50%,${GREEN} 70%,transparent)`}}/>
         {/* Sticky Footer */}
 <div style={{
   position:"fixed",bottom:0,left:0,right:0,zIndex:50,
   background:"rgba(0,0,0,0.95)",
-  borderTop:`1px solid ${GOLD}30`,
+  borderTop:`3px linear-gradient(90deg,transparent,${GREEN} 30%,${GOLD} 50%,${GREEN} 70%,transparent)`,
   backdropFilter:"blur(10px)",
   padding:"10px 20px",
   display:"flex",alignItems:"center",justifyContent:"center",gap:20
