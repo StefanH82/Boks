@@ -6,11 +6,6 @@ const BOK_MATCHES = [
   {id:"T2",stage:"Test 2 · Greatest Rivalry",home:"Springboks",away:"All Blacks",kickoff:"2026-08-29T15:10:00Z",venue:"DHL Stadium, Cape Town"},
   {id:"T3",stage:"Test 3 · Greatest Rivalry",home:"Springboks",away:"All Blacks",kickoff:"2026-09-05T15:10:00Z",venue:"FNB Stadium, Johannesburg"},
   {id:"T4",stage:"Test 4 · Greatest Rivalry",home:"All Blacks",away:"Springboks",kickoff:"2026-09-12T22:00:00Z",venue:"M&T Bank Stadium, Baltimore"},
-  {id:"T5",stage:"One-off Test",home:"Wallabies",away:"Springboks",kickoff:"2026-09-27T07:30:00Z",venue:"Optus Stadium, Perth"},
-  {id:"T6",stage:"Nations Championship",home:"Italy",away:"Springboks",kickoff:"2026-11-07T14:30:00Z",venue:"Italy (TBC)"},
-  {id:"T7",stage:"Nations Championship",home:"France",away:"Springboks",kickoff:"2026-11-13T19:45:00Z",venue:"Stade de France, Paris"},
-  {id:"T8",stage:"Nations Championship",home:"Ireland",away:"Springboks",kickoff:"2026-11-21T16:40:00Z",venue:"Aviva Stadium, Dublin"},
-  {id:"T9",stage:"Nations Champ. Final",home:"TBD",away:"Springboks",kickoff:"2026-11-29T15:00:00Z",venue:"Allianz Stadium, Twickenham"},
 ];
 
 // ─── SUPABASE ─────────────────────────────────────────────────────────────────
