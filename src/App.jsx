@@ -211,19 +211,19 @@ export default function App() {
 
       {/* Side images */}
       {isWideScreen && (
-        <div style={{position:"fixed",left:0,top:"50%",transform:"translateY(-50%)",width:352,height:800,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
-          <img src="/Left.jpg" alt="" style={{width:"100%",height:"100%",objectFit:"cover",opacity:0.85}}/>
+        <div style={{position:"fixed",left:0,top:"50%",transform:"translateY(-50%)",width:308,height:700,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
+          <img src="/Left.jpg" alt="" style={{width:"100%",height:"100%",objectFit:"fill",opacity:0.85}}/>
         </div>
       )}
       {isWideScreen && (
-        <div style={{position:"fixed",right:0,top:"50%",transform:"translateY(-50%)",width:352,height:800,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
+        <div style={{position:"fixed",right:0,top:"50%",transform:"translateY(-50%)",width:308,height:700,zIndex:5,pointerEvents:"none",overflow:"hidden"}}>
           <img src="/Right.jpg" alt="" style={{width:"100%",height:"100%",objectFit:"cover",opacity:0.85}}/>
         </div>
       )}
 
       {/* Header */}
       <header style={{position:"sticky",top:0,zIndex:50,background:"rgba(0,119,73,0.97)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${GREEN}40`,padding:"0 20px"}}>
-        <div style={{maxWidth:800,margin:"0 auto"}}>
+        <div style={{maxWidth:960,margin:"0 auto"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 0 10px"}}>
             <div style={{display:"flex",alignItems:"center",gap:12}}>
               <div style={{width:42,height:42,borderRadius:10,background:`linear-gradient(135deg,${WHITE},#ffffff)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,boxShadow:`0 0 20px ${GREEN}60`}}><img src="/South_Africa_national_rugby_union_team.svg" alt="Springboks" style={{width:"80%",height:"80%",objectFit:"cover"}}/></div>
