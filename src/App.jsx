@@ -107,8 +107,8 @@ const calcPts = (preds, results) => {
 };
 
 const ADMIN_PIN = "boks2026SH";
-const GREEN = "#2d8a4e";
-const GOLD = "#c9a227";
+const GREEN = "#007749";
+const GOLD = "#FFC425";
 const DARK = "#1a1f1e";
 const CARD = "rgba(255,255,255,0.04)";
 
