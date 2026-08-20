@@ -557,7 +557,7 @@ export default function App() {
   <div style={{paddingTop:20}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
       <h2 style={{margin:0,fontSize:16,color:"#fff",fontWeight:800}}>Team Lineups</h2>
-      <span style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>AI-fetched · Starting XV + Bench</span>
+      <span style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>Starting XV + Bench</span>
     </div>
     {/* Match selector */}
     <div style={{display:"flex",flexDirection:"column",gap:3,marginBottom:20}}>
