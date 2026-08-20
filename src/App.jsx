@@ -217,7 +217,10 @@ export default function App() {
       )}
 
       {/* Header */}
-      <header style={{position:"sticky",top:0,zIndex:50,background:"rgba(0,119,73,0.97)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${GREEN}40`,padding:"0 20px"}}>
+      <header style={{position:"sticky",top:0,zIndex:50,background:"rgba(0,119,73,0.97)",backdropFilter:"blur(20px)",borderBottom:"none",
+  borderImage:`linear-gradient(90deg,transparent,${GREEN} 30%,${GOLD} 50%,${GREEN} 70%,transparent) 1`,
+  borderBottomWidth:"3px",
+  borderBottomStyle:"solid",padding:"0 20px"}}>
         <div style={{maxWidth:1200,margin:"0 auto"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 0 10px"}}>
             <div style={{display:"flex",alignItems:"center",gap:12}}>
