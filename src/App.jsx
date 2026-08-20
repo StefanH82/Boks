@@ -228,9 +228,7 @@ export default function App() {
               </div>
             </div>
            <div style={{display:"flex",alignItems:"center",gap:10}}>
-  <div style={{width:60,height:60,borderRadius:10,background:`linear-gradient(135deg,${WHITE},#ffffff)`,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 0 20px ${GREEN}60`}}>
-    <img src="/All Blacks.png" alt="All Blacks" style={{width:"80%",height:"80%",objectFit:"cover"}}/>
-  </div>
+  
   {user && (
                 <>
                   <div style={{display:"flex",alignItems:"center",gap:7,background:`${GREEN}18`,border:`1px solid ${GREEN}35`,borderRadius:30,padding:"5px 12px 5px 6px"}}>
@@ -241,7 +239,9 @@ export default function App() {
                   <button onClick={handleLogout} style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:20,padding:"5px 10px",color:"rgba(255,255,255,0.3)",fontSize:10,cursor:"pointer",fontFamily:"inherit"}}>Log out</button>
                 </>
               )}
-            </div>
+            </div><div style={{width:60,height:60,borderRadius:10,background:`linear-gradient(135deg,${WHITE},#ffffff)`,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 0 20px ${GREEN}60`}}>
+    <img src="/All Blacks.png" alt="All Blacks" style={{width:"80%",height:"80%",objectFit:"cover"}}/>
+  </div>
           </div>
           {/* Nav */}
           <div style={{display:"flex",gap:0,justifyContent:"center"}}>
