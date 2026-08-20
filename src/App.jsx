@@ -200,76 +200,9 @@ export default function App() {
     } catch(e) { showToast("Save failed — check connection","error"); }
     setSaving(false);
   }
-  async function fetchLineup(match) {
-  if (fetchingLineup) return;
-  setFetchingLineup(match.id);
-  try {
-    const today = new Date().toLocaleDateString("en-GB",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-    const prompt = `Today is ${today}.\n\nSearch the web for the latest confirmed or predicted team lineups for this rugby test match:\n${match.home} vs ${match.away}\nDate: ${fmtDate(match.kickoff)} ${fmtTime(match.kickoff)}\nVenue: ${match.venue}\nStage: ${match.stage}\n\nReturn ONLY a JSON object, no markdown:\n{"home_team":"${match.home}","away_team":"${match.away}","home":{"starting":[{"number":1,"name":"Player Name","position":"Loosehead Prop"}],"bench":[{"number":16,"name":"Player Name","position":"Hooker"}]},"away":{"starting":[...],"bench":[...]},"source":"where you found this","confirmed":true}\n\nAlways return all 23 players per team. If not announced, predict based on recent form.`;
-    const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,
-        tools:[{type:"web_search_20250305",name:"web_search"}],
-        messages:[{role:"user",content:prompt}]})});
-    if (!res.ok) throw new Error(`API error ${res.status}`);
-    const raw = await res.text();
-    const data = JSON.parse(raw);
-    const text = (data.content?.filter(b=>b.type==="text").map(b=>b.text)||[]).join("\n");
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON found");
-    const parsed = JSON.parse(jsonMatch[0]);
-    setLineups(prev=>({...prev,[match.id]:{...parsed,fetchedAt:new Date().toLocaleTimeString()}}));
-    showToast(`Lineup loaded for ${match.home} vs ${match.away}`);
-  } catch(e) { showToast("Failed to fetch lineup","error"); }
-  setFetchingLineup(null);
-}
-  async function fetchLineup(match) {
-    if (fetchingLineup) return;
-    setFetchingLineup(match.id);
-    try {
-      const today = new Date().toLocaleDateString("en-GB",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-      const prompt = `Today is ${today}. Search the web for the latest confirmed or predicted team lineups for this rugby test match: ${match.home} vs ${match.away}, ${fmtDate(match.kickoff)}, ${match.venue}. Return ONLY a valid JSON object with no markdown or extra text: {"home_team":"${match.home}","away_team":"${match.away}","home":{"starting":[{"number":1,"name":"Player Name","position":"Loosehead Prop"}],"bench":[{"number":16,"name":"Player Name","position":"Hooker"}]},"away":{"starting":[...],"bench":[...]},"source":"source name","confirmed":false}. Include all 23 players per team. If lineups not announced, use best predicted XV based on recent form.`;
-
-      const res = await fetch("/api/claude", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 3000,
-          tools: [{type:"web_search_20250305",name:"web_search"}],
-          messages: [{role:"user",content:prompt}]
-        })
-      });
-
-      const rawText = await res.text();
-      if (!rawText||rawText.trim()==="") throw new Error("Empty response — check ANTHROPIC_API_KEY in Vercel env vars");
-
-      let data;
-      try { data = JSON.parse(rawText); } catch(e) { throw new Error(`Bad JSON from proxy: ${rawText.slice(0,100)}`); }
-
-      if (data.error) throw new Error(data.error);
-
-      const textBlocks = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text);
-      const fullText = textBlocks.join("\n");
-
-      // Extract JSON — try strict match first, then loose
-      let parsed = null;
-      const strict = fullText.match(/\{[\s\S]*"home_team"[\s\S]*\}/);
-      if (strict) {
-        try { parsed = JSON.parse(strict[0]); } catch(e) {}
-      }
-      if (!parsed) {
-        const loose = fullText.match(/\{[\s\S]*\}/);
-        if (loose) { try { parsed = JSON.parse(loose[0]); } catch(e) {} }
-      }
-      if (!parsed) throw new Error("Could not parse lineup from AI response");
-
-      setLineups(prev=>({...prev,[match.id]:{...parsed,fetchedAt:new Date().toLocaleTimeString()}}));
-      showToast(`Lineup loaded for ${match.home} vs ${match.away}`);
-    } catch(e) {
-      console.error("fetchLineup error:", e);
-      showToast(`Failed: ${e.message.slice(0,60)}`,"error");
-    }
-    setFetchingLineup(null);
+  function searchLineup(match) {
+    const query = encodeURIComponent(`${match.home} vs ${match.away} ${new Date(match.kickoff).getFullYear()} rugby lineup team sheet`);
+    window.open(`https://www.google.com/search?q=${query}`, "_blank");
   }
 
   const totalPreds = Object.values(preds).filter(p=>p&&p.home!==""&&p.away!=="").length;
@@ -571,11 +504,11 @@ export default function App() {
             </div>
             <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
               {lineup&&<span style={{fontSize:9,color:GREEN,background:`${GREEN}15`,borderRadius:10,padding:"2px 8px"}}>{lineup.confirmed?"✓ Confirmed":"~ Predicted"} · {lineup.fetchedAt}</span>}
-              <button onClick={e=>{e.stopPropagation();fetchLineup(match);}} disabled={isFetching} style={{
-                padding:"5px 12px",background:isFetching?`${GREEN}20`:`linear-gradient(135deg,${GREEN},#1a5c34)`,
-                border:"none",borderRadius:20,color:isFetching?"rgba(255,255,255,0.4)":"#fff",
-                fontSize:10,fontWeight:700,cursor:isFetching?"not-allowed":"pointer",fontFamily:"inherit"
-              }}>{isFetching?"⏳ Fetching…":lineup?"↻ Refresh":"🔍 Fetch Lineup"}</button>
+              <button onClick={e=>{e.stopPropagation();searchLineup(match);}} style={{
+                padding:"5px 12px",background:`linear-gradient(135deg,${GREEN},#1a5c34)`,
+                border:"none",borderRadius:20,color:"#fff",
+                fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"
+              }}>🔍 Search Lineup</button>
             </div>
           </div>
         );
