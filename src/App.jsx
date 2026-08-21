@@ -728,7 +728,14 @@ export default function App() {
               <>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
                   <h2 style={{margin:0,fontSize:16,color:"#fff"}}>Admin Panel</h2>
-                  <span style={{fontSize:10,color:"#4ade80",background:"rgba(74,222,128,0.08)",border:"1px solid rgba(74,222,128,0.2)",borderRadius:20,padding:"3px 10px"}}>● Admin</span>
+                  <div style={{display:"flex",gap:8,alignItems:"center"}}>
+  <span style={{fontSize:10,color:"#4ade80",background:"rgba(74,222,128,0.08)",border:"1px solid rgba(74,222,128,0.2)",borderRadius:20,padding:"3px 10px"}}>● Admin</span>
+  <button onClick={()=>{setAdminUnlocked(false);setAdminPin("");setTab("predict");}} style={{
+    background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.25)",
+    borderRadius:20,padding:"3px 12px",color:"#f87171",
+    fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"
+  }}>Log out</button>
+</div>
                 </div>
                 {/* Manual results */}
                 <div style={{fontSize:11,color:"rgba(255,255,255,0.35)",fontWeight:600,letterSpacing:0.5,marginBottom:8}}>Enter Match Results</div>
